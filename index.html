@@ -2,106 +2,111 @@
 <head>
     <title>난서증 판독 서비스</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
+            font-family: Arial, sans-serif;
             text-align: center;
-            padding: 100px;
-            background-color: azure;
+            
         }
 
         #webcam-container {
             display: inline-block;
             margin: 20px;
-            border: 2px solid #ccc;
         }
 
         #label-container {
             display: inline-block;
             margin: 20px;
-            border: 2px solid #ccc;
             padding: 10px;
         }
 
         button {
-            font-family: HakgyoansimWoojuR;
-            font-size: 16px;
+            border-radius: 20px;
+            font-size: 20px;
             padding: 10px 20px;
-            background-color: hsl(212, 71%, 57%);
+            background-color: #007bff;
             color: #fff;
             border: none;
             cursor: pointer;
+            font-family: 'ImcreSoojin'
         }
 
         button:hover {
             background-color: #0056b3;
         }
+        @font-face {
+            font-family: 'ImcreSoojin';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.3/ImcreSoojin.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
     </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+KR&display=swap">
 </head>
 <body>
-    <div >Dysgraphia Detection Service</div>
-    <button type="button" onclick="init()">Start</button>
-    <div id="webcam-container"></div>
-    <div id="label-container"></div>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-    <script type="text/javascript">
-        // More API functions here:
-        // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
-    
-        // the link to your model provided by Teachable Machine export panel
-        const URL = "https://teachablemachine.withgoogle.com/models/G0fVDQoxo/";
-    
-        let model, webcam, labelContainer, maxPredictions;
-    
-        // Load the image model and setup the webcam
-        async function init() {
-            const modelURL = URL + "model.json";
-            const metadataURL = URL + "metadata.json";
-    
-            // load the model and metadata
-            // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
-            // or files from your local hard drive
-            // Note: the pose library adds "tmImage" object to your window (window.tmImage)
-            model = await tmImage.load(modelURL, metadataURL);
-            maxPredictions = model.getTotalClasses();
-    
-            // Convenience function to setup a webcam
-            const flip = true; // whether to flip the webcam
-            webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
-            await webcam.setup(); // request access to the webcam
-            await webcam.play();
-            window.requestAnimationFrame(loop);
-    
-            // append elements to the DOM
-            document.getElementById("webcam-container").appendChild(webcam.canvas);
-            labelContainer = document.getElementById("label-container");
-            for (let i = 0; i < maxPredictions; i++) { // and class labels
-                labelContainer.appendChild(document.createElement("div"));
+    <div style="text-align: center; margin: 30px; color: #407529; font-size: 450%; font-family: 'ImcreSoojin'; font-weight: 700; word-wrap: break-word">난서증 판독</div>
+    <div>
+        <button id="button" type="button" onclick="init()">실시간</button>
+        <div id="webcam-container" style="display: none;"></div>
+        <div id="label-container" style="display: none;"></div>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+        <script type="text/javascript">
+            // More API functions here:
+            // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+        
+            // the link to your model provided by Teachable Machine export panel
+            const URL = "https://teachablemachine.withgoogle.com/models/G0fVDQoxo/";
+        
+            let model, webcam, labelContainer, maxPredictions;
+        
+            // Load the image model and setup the webcam
+            async function init() {
+                const modelURL = URL + "model.json";
+                const metadataURL = URL + "metadata.json";
+        
+                // load the model and metadata
+                // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+                // or files from your local hard drive
+                // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+                model = await tmImage.load(modelURL, metadataURL);
+                maxPredictions = model.getTotalClasses();
+        
+                // Convenience function to setup a webcam
+                const flip = true; // whether to flip the webcam
+                webcam = new tmImage.Webcam(300, 300, flip); // width, height, flip
+                await webcam.setup(); // request access to the webcam
+                await webcam.play();
+                document.getElementById("webcam-container").style.display = "block";
+                document.getElementById("label-container").style.display = "block";
+                window.requestAnimationFrame(loop);
+        
+                // append elements to the DOM
+                document.getElementById("webcam-container").appendChild(webcam.canvas);
+                labelContainer = document.getElementById("label-container");
+                for (let i = 0; i < maxPredictions; i++) { // and class labels
+                    labelContainer.appendChild(document.createElement("div"));
+                }
+                document.getElementById("button").style.display = "none";
             }
-        }
-    
-        async function loop() {
-            webcam.update(); // update the webcam frame
-            await predict();
-            window.requestAnimationFrame(loop);
-        }
-    
-        // run the webcam image through the image model
-        async function predict() {
-            // predict can take in an image, video or canvas html element
-            const prediction = await model.predict(webcam.canvas);
-            for (let i = 0; i < maxPredictions; i++) {
-                const classPrediction =
-                    prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-                labelContainer.childNodes[i].innerHTML = classPrediction;
+
+            async function loop() {
+                webcam.update(); // update the webcam frame
+                await predict();
+                window.requestAnimationFrame(loop);
             }
-        }
-    </script>
-    
+        
+            // run the webcam image through the image model
+            async function predict() {
+                // predict can take in an image, video or canvas html element
+                const prediction = await model.predict(webcam.canvas);
+                for (let i = 0; i < maxPredictions; i++) {
+                    const classPrediction =
+                        prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+                    labelContainer.childNodes[i].innerHTML = classPrediction;
+                }
+            }
+            
+        </script>
+    </div>
 </body>
 </html>
