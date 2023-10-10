@@ -4,6 +4,8 @@
 
 곽박조 Team
 
-곽인애  inane99\n
-박태경  tayver\n
-조은서  theeunseojo\n
+곽인애  inane99
+
+박태경  tayver
+
+조은서  theeunseojo
